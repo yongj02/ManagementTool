@@ -1,0 +1,153 @@
+{% extends 'simple_base.html' %}
+
+{% block head %}
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      $(window).on('load', function() {
+        highlight_sidebar('team-sidebar-select');
+      });
+    </script>
+{% endblock %}
+  
+{% block body %}
+
+  <!-- Button trigger modal -->
+  {% if team|length < 1 %}
+    <h3 id = "h3_text">There are currently no team members. Add one below</h3>
+  {% else %}
+    <table 
+			id="table_detail"
+			class="table align-middle mb-0 bg-white table-hover"
+    >
+      <tr>
+        <th scope='col' colspan=4 style="text-align-last: center">
+          <h2>Members</h2>
+        </th>
+      </tr>
+      {% for member in team %}
+        <tr>
+          <td scope='row' colspan = 4 style="text-align-last: center; position: relative; top: 50%">
+            <h4>{{ member }}</h4>
+            <div class="edit-delete-buttons">
+              <a type="button" class="edit btn btn-secondary" href=/team/edit/{{ member.id }}>Edit</a>
+              <a type="button" class="edit btn btn-secondary" href=/team/delete/{{ member.id }} onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td scope='row' style="text-align-last: center"><b>Phone:</b></td>
+          <td scope='row' style="text-align-last: center"><b>Email:</b></td>
+          <td scope='row' style="text-align-last: center"><b>Date of Birth:</b></td>
+          <td scope='row' style="text-align-last: center"><b>Added:</b></td>
+        </tr>
+        <tr>
+          <td scope='row' style="text-align-last: center">{{ member.contact_no }}</td>
+          <td scope='row' style="text-align-last: center">{{ member.contact_email }}</td>
+          <td scope='row' style="text-align-last: center">{{ member.dob }}</td>
+          <td scope='row' style="text-align-last: center">{{ member.date_added.date() }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTeamMemberPopup">
+    ADD TEAM MEMBER
+  </button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="addTeamMemberPopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <form method="POST">
+            <div class="modal-header">
+              <h3 class="modal-title" id="exampleModalLabel">New Team Member</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form">
+                <form method="POST">
+                  {{ memberForm.hidden_tag() }}
+
+                  {{ memberForm.givenName.label(class="form-label") }}
+                  {{ memberForm.givenName(class="form-control") }}
+
+                  {% if memberForm.givenName.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.givenName.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  {{ memberForm.familyName.label(class="form-label") }}
+                  {{ memberForm.familyName(class="form-control") }}
+
+                  {% if memberForm.familyName.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.familyName.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  {{ memberForm.dob.label(class="form-label") }}
+                  {{ memberForm.dob(class="form-control") }}
+
+                  {% if memberForm.dob.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.dob.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  {{ memberForm.contact_no.label(class="form-label") }}
+                  {{ memberForm.contact_no(class="form-control") }}
+
+                  {% if memberForm.contact_no.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.contact_no.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  {{ memberForm.email.label(class="form-label") }}
+                  {{ memberForm.email(class="form-control") }}
+
+                  {% if memberForm.email.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.email.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{ memberForm.submit(class="btn btn-primary") }}
+                  </div>
+                  {% if memberForm.errors %}<script>$('#addTeamMemberPopup').modal('show');</script>{% endif %}
+                </form>
+              </div>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% block editTeam %}{% endblock %}
+{% endblock %}

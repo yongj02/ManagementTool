@@ -1,0 +1,164 @@
+{% extends 'simple_base.html' %}
+
+{% block head %}
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+{% endblock %}
+
+
+{% block body %}
+<!-- Button trigger modal -->
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTaskPopup">
+    ADD TASK
+  </button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="addTaskPopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <form action="/backlog" method="POST">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">New Task</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                    <label for="taskName">Task Name: </label>
+                    <input id="taskName" name="taskName" class="form-control" placeholder="Task Name" required autofocus>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="status">Status: </label>
+                            <span id="status"> Not Started</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="priority">Priority: </label>
+                            <select id="priority" name="priority" required>
+                            <option>low</option>
+                            <option>medium</option>
+                            <option>high</option>
+                            <option>critical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="tag" >Tag: </label>
+                            <select id="tag" name="tag" required>
+                                <option value="all">all</option>
+                                <option value="core">core</option>
+                                <option value="UI">UI</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="storyPoint">Story Point: </label>
+                            <input type="number" name="storyPoint" id="storyPoint" placeholder="" min="1" max="10" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="description">Description: </label>
+                            <input type="text" name="description" id="description" placeholder="" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                          <label for="start_date">Start date:</label>
+                          <input type="date" name="start_date" id="start_date" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                          <label for="complete_date">Complete date:</label>
+                          <input type="date" name="complete_date" id="complete_date" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="team_member_id">Sprint duration: </label>
+                            <input type="number" name="team_member_id" id="team_member_id" placeholder="Team Member ID">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="sprint_id">Sprint duration: </label>
+                            <input type="number" name="sprint_id" id="sprint_id" placeholder="Sprint ID">
+                        </div>
+                    </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="submit">
+                </div>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<!--DOCTYPE html-->
+    <html>
+    <head>
+    <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    </style>
+    </head>
+    <body>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Task ID</th>
+          <th scope="col">Task Name</th>
+          <th scope="col">Description</th>
+          <th scope="col">Start Date</th>
+          <th scope="col">Complete Date</th>
+          <th scope="col">Story Points</th>
+          <th scope="col">Priority</th>
+          <th scope="col">Tag</th>
+          <th scope="col">Status</th>
+          <th scope="col">Team Member ID</th>
+          <th scope="col">Sprint ID</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for task in tasks%}
+        <tr>
+          <th scope="row">{{ task.id }}</th>
+          <th scope="row">{{ task.taskName }}</th>
+          <th scope="row">{{ task.description }}</th>
+          <th scope="row">{{ task.start_date }}</th>
+          <th scope="row">{{ task.complete_date }}</th>
+          <th scope="row">{{ task.story_points }}</th>
+          <th scope="row">{{ task.priority }}</th>
+          <th scope="row">{{ task.tag }}</th>
+          <th scope="row">{{ task.status }}</th>
+          <th scope="row">{{ task.team_member_id }}</th>
+          <th scope="row">{{ task.sprint_id }}</th>
+          <td>
+            <a href="/backlog/delete/{{task.id}}">Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+{% endblock %}

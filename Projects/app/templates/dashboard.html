@@ -1,0 +1,80 @@
+{% extends 'simple_base.html' %}
+
+{% block head %}
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      $(window).on('load', function() {
+        highlight_sidebar('dash-sidebar-select');
+      });
+    </script>
+{% endblock %}
+
+
+{% block body %}
+    <div id="subpage">
+        <a href="/dash/"> Sprint management</a>
+        <a href="/dash/team/">Team management</a>
+    </div>
+    <div id = "database">
+    <div class="row mt-1">
+        <div class="col-sm-3">
+            <div class="card" >
+                <div class="card-body">
+                    <form action="/dash/" method="POST">
+                        <div class="form-group">
+                            <label for="sprint" class="form-label">Sprint: </label>
+                            <div class="row mt-1">
+                                <div class="col-sm-8">
+                                <select id="sprint" name="sprint"class="form-control" required>
+                                    {%for option in options%}
+                                    <option value="{{option.id}}">{{option.sprintName}}</option>
+                                    {%endfor%}
+                                </select>
+                                </div>
+                                <input type="submit" class="btn btn-primary" value="view" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="col-sm-3">
+            <div class="card" >
+                <div class="card-body">
+                    <h5 class="card-title">Start Date</h5>
+                    <h2 class="card-text">{{sprint_start_date}}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="card" >
+                <div class="card-body">
+                    <h5 class="card-title">Total Worked Hours</h5>
+                    <h2 class="card-text">{{total_hour}}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="card" >
+                <div class="card-body">
+                    <h5 class="card-title">Average Hours Spent (Per Task)</h5>
+                    <h2 class="card-text">{{avg_hour}}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  
+    <div class="row mt-1">
+        {% for plot in plots %}
+            <div class="col-sm-6">
+                {{ plot|safe }}
+            </div>
+        {% endfor %}
+
+    </div> 
+
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'team.html' %}
+{% block head %}
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#editTeamMemberPopup').modal('show');
+		})
+	</script>
+{% endblock %}
+
+{% block editTeam %}
+  <!-- Modal -->
+  <div class="modal" id="editTeamMemberPopup" tabindex="-1" role="dialog" aria-labelledby="editTeamMemberLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+		    <form action="/team/edit/{{ _id }}" method="POST">
+            <div class="modal-header">
+              <h3 class="modal-title" id="exampleModalLabel">Edit Team Member</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form">
+                <form method="POST">
+                  {{ memberForm.hidden_tag() }}
+
+                  {{ memberForm.givenName.label(class="form-label") }}
+                  {{ memberForm.givenName(class="form-control") }}
+
+                  {% if memberForm.givenName.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.givenName.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  {{ memberForm.familyName.label(class="form-label") }}
+                  {{ memberForm.familyName(class="form-control") }}
+
+                  {% if memberForm.familyName.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.familyName.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  {{ memberForm.dob.label(class="form-label") }}
+                  {{ memberForm.dob(class="form-control") }}
+
+                  {% if memberForm.dob.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.dob.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  {{ memberForm.contact_no.label(class="form-label") }}
+                  {{ memberForm.contact_no(class="form-control") }}
+
+                  {% if memberForm.contact_no.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.contact_no.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  {{ memberForm.email.label(class="form-label") }}
+                  {{ memberForm.email(class="form-control") }}
+
+                  {% if memberForm.email.errors %}
+                    <ul class="errors">
+
+                      {% for error in memberForm.email.errors %}
+                        <li style="color: red; text-aligned: left"> {{ error }} </li>
+                      {% endfor %}
+
+                    </ul>
+                  {% endif %}
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{ memberForm.submit(class="btn btn-primary") }}
+                  </div>
+                  {% if memberForm.errors %}<script>$('#addTeamMemberPopup').modal('show');</script>{% endif %}
+                </form>
+              </div>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    $('#editTeamMemberPopup').on('hide.bs.modal', function() {
+      window.location.href = "{{url_for('team.show_team')}}";
+  })
+  </script>
+{% endblock %}

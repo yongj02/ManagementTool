@@ -1,0 +1,106 @@
+{% extends 'sprints.html' %}
+{% block editSprintTask %}
+	<!-- EDITING TASK WITHIN A SPRINT BOARD -->
+	<div class="modal fade" id="editSprintTaskPopup" tabindex="-1" role="dialog" aria-labelledby="editSprintTaskLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<form action="/sprints/edit_sprint_task/{{ _id }}/{{filter_tag}}" method="POST">
+				<div class="modal-header">
+					<h3 class="modal-title" id="exampleModalLabel">Edit Task</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form method="POST">
+						{{ taskForm.hidden_tag() }}
+
+						{{ taskForm.taskName.label(class="form-label") }}
+						{{ taskForm.taskName(class="form-control") }}
+
+						{% if taskForm.taskName.errors %}
+						<ul class="errors">
+
+							{% for error in taskForm.taskName.errors %}
+							<li style="color: red; text-aligned: left"> {{ error }} </li>
+							{% endfor %}
+
+						</ul>
+						{% endif %}
+
+						{{ taskForm.description.label(class="form-label") }}
+						{{ taskForm.description(class="form-control") }}
+
+						{% if taskForm.description.errors %}
+						<ul class="errors">
+
+							{% for error in taskForm.description.errors %}
+							<li style="color: red; text-aligned: left"> {{ error }} </li>
+							{% endfor %}
+
+						</ul>
+						{% endif %}
+
+						{{ taskForm.story_points.label(class="form-label") }}
+						{{ taskForm.story_points(class="form-control") }}
+
+						{% if taskForm.story_points.errors %}
+						<ul class="errors">
+
+							{% for error in taskForm.story_points.errors %}
+							<li style="color: red; text-aligned: left"> {{ error }} </li>
+							{% endfor %}
+
+						</ul>
+						{% endif %}
+
+						{{ taskForm.priority.label(class="form-label") }}
+						{{ taskForm.priority(class="form-control") }}
+
+						{{ taskForm.tag.label(class="form-label") }}
+						{{ taskForm.tag(class="form-control") }}
+
+						{% if taskForm.data['status'] in ["In Progress", "Completed"] %}
+							{{ taskForm.time_taken.label(class="form-label") }}
+							{{ taskForm.time_taken(class="form-control")}}
+							{% if taskForm.time_taken.errors %}
+								<ul class="errors">
+
+									{% for error in taskForm.time_taken.errors %}
+										<li style="color: red; text-aligned: left"> {{ error }} </li>
+									{% endfor %}
+
+								</ul>
+							{% endif %}
+						{% endif %}
+
+						{{ taskForm.status.label(class="form-label") }}
+						{{ taskForm.status(class="form-control") }}
+
+						{{ taskForm.team_member_id.label(class="form-label") }}
+						{{ taskForm.team_member_id(class="form-control") }}
+
+						{{ taskForm.sprint_id.label(class="form-label") }}
+						{{ taskForm.sprint_id(class="form-control") }}
+
+						<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						{{ taskForm.submit(class="btn btn-primary") }}
+						</div>
+						{% if taskForm.errors %}<script>$('#addTaskPopup').modal('show');</script>{% endif %}
+					</form>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>
+  <script type="text/javascript">
+	$(window).on('load', function() {
+		$('#editSprintTaskPopup').modal('show');
+	});
+	
+    $('#editSprintTaskPopup').on('hide.bs.modal', function() {
+      window.location.href = "{{url_for('sprints.show_sprints', filter_tag=filter_tag)}}";
+    })
+  </script>
+{% endblock %}

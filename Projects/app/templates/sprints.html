@@ -1,0 +1,296 @@
+{% extends 'simple_base.html' %}
+{% block head %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		$(window).on('load', function() {
+			highlight_sidebar('sprints-sidebar-select');
+		});
+
+		function add_task_to_sprint(){
+			let select = document.getElementById("add_task_select");
+			let task_to_add = select.options[select.selectedIndex].value;
+		}
+		$(function() {
+          $('a#test').on('click', function(e) {
+            e.preventDefault()
+            $.getJSON('/background_process_test',
+                function(data) {
+              //do nothing
+            });
+            return false;
+          });
+        });
+	</script>
+{% endblock %}
+
+
+{% block body %}
+  <!-- Add Sprint Modal -->
+  <div class="modal fade" id="addSprintPopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title" id="exampleModalLabel">New Sprint</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form">
+						<form method="POST">
+							{{ sprintForm.hidden_tag() }}
+
+							{{ sprintForm.sprintName.label(class="form-label") }}
+							{{ sprintForm.sprintName(class="form-control") }}
+
+							{% if sprintForm.sprintName.errors %}
+								<ul class="errors">
+
+									{% for error in sprintForm.sprintName.errors %}
+										<li style="color: red; text-aligned: left"> {{ error }} </li>
+									{% endfor %}
+
+								</ul>
+							{% endif %}
+
+							{{ sprintForm.start_date.label(class="form-label") }}
+							{{ sprintForm.start_date(class="form-control") }}
+
+							{% if sprintForm.start_date.errors %}
+								<ul class="errors">
+
+									{% for error in sprintForm.start_date.errors %}
+										<li style="color: red; text-aligned: left"> {{ error }} </li>
+									{% endfor %}
+
+								</ul>
+							{% endif %}
+
+							{{ sprintForm.end_date.label(class="form-label") }}
+							{{ sprintForm.end_date(class="form-control") }}
+
+							{% if sprintForm.end_date.errors %}
+								<ul class="errors">
+
+									{% for error in sprintForm.end_date.errors %}
+										<li style="color: red; text-aligned: left"> {{ error }} </li>
+									{% endfor %}
+
+								</ul>
+							{% endif %}
+
+							{{ sprintForm.tasks.label(class="form-label") }}
+							{{ sprintForm.tasks(class="form-control") }}
+
+							{% if sprintForm.tasks.errors %}
+								<ul class="errors">
+
+									{% for error in sprintForm.end_date.errors %}
+										<li style="color: red; text-aligned: left"> {{ error }} </li>
+									{% endfor %}
+
+								</ul>
+							{% endif %}
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+								{{ sprintForm.submit(class="btn btn-primary") }}
+							</div>
+							{% if sprintForm.errors %}<script>$('#addSprintPopup').modal('show');</script>{% endif %}
+						</form>
+					</div>
+				</div>
+      </div>
+    </div>
+	</div>
+
+    <!--              Creating the table                               -->
+	{% if sprints|length < 1 %}
+	<h3 id = "h3_text">There are currently no sprints. Add one below</h3>
+	{% else %}
+		<table
+			id="table_detail"
+			class="table align-middle mb-0 bg-white table-hover"
+		>
+			<div class="form-group row">
+				<div class="col-sm-3">
+					<a type="button" class="btn btn-{{"dark" if filter_tag == "All" else "light"}}" href="/sprints/All">All</a>
+					<a type="button" class="btn btn-{{"dark" if filter_tag == "Core" else "light"}}" href="/sprints/Core">Core</a>
+					<a type="button" class="btn btn-{{"dark" if filter_tag == "UI" else "light"}}" href="/sprints/UI">UI</a>
+					<a type="button" class="btn btn-{{"dark" if filter_tag == "Testing" else "light"}}" href="/sprints/Testing">Testing</a>
+				</div>
+			</div>
+			<tr>
+				<th colspan=3 style="text-align-last: center">
+					<h2>Sprints</h2>
+				</th>
+			</tr>
+		<tbody>
+			<!-- Caling showHideRow function which triggers on click -->
+			
+			{% for sprint, tasks in zip(sprints, sprint_tasks) %}
+			<tr>
+				<td scope='row' colspan=3 style="text-align-last: center; position: relative; top: 50%">
+					<h4>{{ sprint }}</h4>
+					<div class="edit-delete-buttons">
+						<a type="button" id = "edit-btn" class="edit btn btn-secondary" href=/sprints/edit/{{ sprint.id }}/{{ filter_tag }}>Edit</a>
+						<a type="button" id = "delete-btn" class="edit btn btn-secondary" href=/sprints/delete/{{ sprint.id }}/{{ filter_tag }} onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+					</div>
+				</td>
+			</tr>
+			<!-- The hidden table row -->
+			<tr>
+				<td scope='row' style="text-align-last: center"><b>Status: </b></td>
+				<td scope='row' style="text-align-last: center"><b>Start Date:</b></td>
+				<td scope='row' style="text-align-last: center"><b>End Date:</b></td>
+				<td scope='row' style="text-align-last: center"><b>Add a task:</b></td>
+			</tr>
+				<!-- Table with Sprint Details  -->
+			<tr>
+				{% if sprint.status == 'Not Started' %}
+								<td
+									id="sprint-not-started-status"
+									scope='row'
+									class="badge float-center mt-1 badge-pill"
+								>
+									{{ sprint.status }}
+								</td>
+							{% else %}
+								{% if sprint.status == 'Active' %}
+									<td
+										id="sprint-active-status"
+										scope='row'
+										class="badge float-center mt-1 badge-pill"
+									>
+										{{ sprint.status }}
+									</td>
+								{% else %}
+									{% if sprint.status == "Completed" %}
+										<td
+											id="sprint-completed-status"
+											scope='row'
+											class="badge float-center mt-1 badge-pill"
+										>
+											{{ sprint.status }}
+										</td>
+									{% endif %}
+								{% endif %}
+							{% endif %}
+				<td scope='row' style="text-align-last: center">{{ sprint.start_date }}</td>
+				<td scope='row' style="text-align-last: center">{{ sprint.end_date }}</td>
+				<td scope='row' style="text-align-last: center">
+					<div class="form">
+						{% if backlog_tasks|length > 0 %}
+							<form method="POST", action="{{url_for('sprints.add_sprint_task', sprint_id=sprint.id, filter_tag=filter_tag)}}">
+								{{ add_task_form.hidden_tag() }}
+
+								{{ add_task_form.tasks(class="form-control") }}
+
+								{% if add_task_form.tasks.errors %}
+									<ul class="errors">
+
+										{% for error in add_task_form.end_date.errors %}
+											<li style="color: red; text-aligned: left"> {{ error }} </li>
+										{% endfor %}
+
+									</ul>
+								{% endif %}
+
+								{{ add_task_form.submit(class="btn btn-primary") }}
+							</form>
+						{% else %}
+							No tasks to add 
+						{% endif %}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td colspan="3">
+					<!----------------------Kanban to do-------------------------->
+					<ol class="kanban To-do">
+						<div class="kanban__title">
+							<h2 id="kanban_text"><i class="material-icons">report_problem</i>To do</h2>
+						</div>
+						{% for task in tasks %}
+							{% if task.status == "Not Started" and (task.tag == filter_tag or filter_tag == "All") %}
+								<li class="dd-item" onclick="document.location = '{{ url_for('sprints.edit_sprint_task', _id=task.id, filter_tag=filter_tag) }}';">
+									<h3>
+									<div class="tags">
+										{% if task.tag == 'UI' %}
+											<label class="tag_UI" style="width: 50px; height: 70px; font-size: 15px; padding-top: 24px">{{ task.tag }}</label>
+										{% elif task.tag == 'Core' %}
+											<label class="tag_Core" style="width: 50px; height: 70px; font-size: 15px; padding-top: 24px">{{ task.tag }}</label>
+										{% else %}
+											<label class="tag_Testing" style="width: 50px; height: 70px; font-size: 15px; padding-top: 24px">{{ task.tag }}</label>
+										{% endif %}
+									</div>
+									{{task}}
+									{% if task.priority == 'Critical' %}
+										<i class="fa fa-flag" style="font-size:20px;color:darkred;"></i>
+									{% else %}
+										{% if task.priority == 'High' %}
+											<i class="fa fa-flag" style="font-size:20px;color:var(--color-danger);"></i>
+										{% else %}
+											{% if task.priority == 'Medium' %}
+												<i class="fa fa-flag" style="font-size:20px;color:orange;"></i>
+											{% else %}
+												{% if task.priority == 'Low' %}
+													<i class="fa fa-flag" style="font-size:20px;color:green;"></i>
+												{% endif %}
+											{% endif %}
+										{% endif %}
+									{% endif %}
+									</h3>
+								</li>
+							{% endif %}
+						{% endfor %}
+					</ol>
+					<!-------------------------------------------In Progress column-->
+					<ol class="kanban progress">
+						<div class="kanban__title">
+							<h2 id="kanban_text"><i class="material-icons">build</i> In progress</h2>
+						</div>
+						{% for task in tasks %}
+							{% if task.status == "In Progress" and (task.tag == filter_tag or filter_tag == "All") %}
+								<li class="dd-item" onclick="document.location = '{{ url_for(sprints.edit_sprint_task, _id=task.id, filter_tag=filter_tag) }}';">
+									<h3 >{{task}}</h3>
+								</li>
+							{% endif %}
+						{% endfor %}
+					</ol>
+					<!----------------------------------------- Done Coloumn ---------------- -->
+					<ol class="kanban Done">
+						<div class="kanban__title">
+							<h2 id="kanban_text"><i class="material-icons">check_circle</i> Done</h2>
+						</div>
+						{% for task in tasks %}
+							{% if task.status == "Completed" and (task.tag == filter_tag or filter_tag == "All") %}
+								<li class="dd-item" onclick="document.location = '{{ url_for(sprints.edit_sprint_task, _id=task.id, filter_tag=filter_tag) }}';">
+									<h3 >{{task}}</h3>
+								</li>
+							{% endif %}
+						{% endfor %}
+					</ol>
+				</td>
+			</tr>
+			{% endfor %}
+
+		</tbody>
+		</table>
+	{% endif %}
+
+	<div class = "col-md-12 text-center">
+	<button
+		type="button"
+		class="btn btn-primary"
+		data-toggle="modal"
+		data-target="#addSprintPopup">
+		ADD SPRINT
+	</button>
+	</div>
+	{% block editSprintTask %}{% endblock %}
+	{% block editSprint %}{% endblock %}
+{% endblock %}

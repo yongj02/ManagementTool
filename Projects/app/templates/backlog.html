@@ -1,0 +1,291 @@
+{% extends 'simple_base.html' %}
+
+{% block head %}
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <!-- <script type="text/javascript">
+		$(window).on('load', function() {
+		  highlight_sidebar('team-sidebar-select');
+		});
+	  </script> -->
+{% endblock %}
+
+
+{% block body %}
+	<!-- Modal -->
+	<!-- This displays the popup modal for creating a new task. It is triggered by the add Task button-->
+	<div class="modal fade" id="addTaskPopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title" >New Task</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form method="POST">
+					<div class="modal-body">
+						<div class="form">
+							<form method="POST">
+								{{ taskForm.hidden_tag() }}
+
+								{{ taskForm.taskName.label(class="form-label") }}
+								{{ taskForm.taskName(class="form-control") }}
+
+								{% if taskForm.taskName.errors %}
+								<ul class="errors">
+
+									{% for error in taskForm.taskName.errors %}
+									<li style="color: red; text-aligned: left"> {{ error }} </li>
+									{% endfor %}
+
+								</ul>
+								{% endif %}
+
+								{{ taskForm.description.label(class="form-label") }}
+								{{ taskForm.description(class="form-control") }}
+
+								{% if taskForm.description.errors %}
+								<ul class="errors">
+
+									{% for error in taskForm.description.errors %}
+									<li style="color: red; text-aligned: left"> {{ error }} </li>
+									{% endfor %}
+
+								</ul>
+								{% endif %}
+
+								{{ taskForm.story_points.label(class="form-label") }}
+								{{ taskForm.story_points(class="form-control") }}
+
+								{% if taskForm.story_points.errors %}
+								<ul class="errors">
+
+									{% for error in taskForm.story_points.errors %}
+									<li style="color: red; text-aligned: left"> {{ error }} </li>
+									{% endfor %}
+
+								</ul>
+								{% endif %}
+
+								{{ taskForm.priority.label(class="form-label") }}
+								{{ taskForm.priority(class="form-control") }}
+
+								{{ taskForm.tag.label(class="form-label") }}
+								{{ taskForm.tag(class="form-control") }}
+
+								{{ taskForm.team_member_id.label(class="form-label") }}
+								{{ taskForm.team_member_id(class="form-control") }}
+
+								{{ taskForm.sprint_id.label(class="form-label") }}
+								{{ taskForm.sprint_id(class="form-control") }}
+
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+									{{ taskForm.submit(class="btn btn-primary") }}
+								</div>
+								{% if taskForm.errors %}<script>$('#addTaskPopup').modal('show');</script>{% endif %}
+							</form>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+    <!--                  End of Nav bar    -->
+    <!--              Creating the table                               -->
+
+	{% if tasks|length < 1 %}
+	<h3 id = "h3_text">There are currently no unassigned tasks. Add one below</h3>
+	{% else %}
+
+		<table 
+				id="table_detail"
+				class="table align-middle mb-0 bg-white table-hover"
+		>
+			<div class="form-group row">
+				<div class="col-sm-3">
+					<a type="button" class="btn btn-{{'dark' if filter_tag == 'All' else 'light'}}" href="/backlog/All">All</a>
+					<a type="button" class="btn btn-{{'dark' if filter_tag == 'Core' else 'light'}}" href="/backlog/Core">Core</a>
+					<a type="button" class="btn btn-{{'dark' if filter_tag == 'UI' else 'light'}}" href="/backlog/UI">UI</a>
+					<a type="button" class="btn btn-{{'dark' if filter_tag == 'Testing' else 'light'}}" href="/backlog/Testing">Testing</a>
+				</div>
+			</div>
+			<tr>
+				<th scope='col' colspan=7 style="text-align-last: center">
+					<h2>Tasks</h2>
+				</th>
+			</tr>
+			{% for task,member,sprint in zip(tasks,members,sprints) %}
+				{% if task.tag == filter_tag or filter_tag == "All" %}
+					<tr> 
+						<th scope='row' colspan=7 style="text-align-last: center; position: relative; top: 50%">
+							<h4>
+							<div class="tags">
+								{% if task.tag == 'UI' %}
+									<label class="tag_UI" style="width: 100px; height: 58px">{{ task.tag }}</label>
+								{% elif task.tag == 'Core' %}
+									<label class="tag_Core" style="width: 100px; height: 58px">{{ task.tag }}</label>
+								{% else %}
+									<label class="tag_Testing" style="width: 100px; height: 58px">{{ task.tag }}</label>
+								{% endif %}
+							</div>
+							{{ task }}
+							{% if task.priority == 'Critical' %}
+								<i class="fa fa-flag" style="font-size:20px;color:darkred;"></i>
+							{% else %}
+								{% if task.priority == 'High' %}
+									<i class="fa fa-flag" style="font-size:20px;color:var(--color-danger);"></i>
+								{% else %}
+									{% if task.priority == 'Medium' %}
+										<i class="fa fa-flag" style="font-size:20px;color:orange;"></i>
+									{% else %}
+										{% if task.priority == 'Low' %}
+											<i class="fa fa-flag" style="font-size:20px;color:green;"></i>
+										{% endif %}
+									{% endif %}
+								{% endif %}
+							{% endif %}
+
+							{% if task.status == 'Not Started' %}
+								<div
+									id="todo-status"
+									scope='row'
+									class="badge float-center mt-1 badge-pill"
+								>
+									{{ task.status }}
+								</div>
+							{% else %}
+								{% if task.status == 'In Progress' %}
+									<div
+										id="progress-status"
+										scope='row'
+										class="badge float-center mt-1 badge-pill"
+									>
+										{{ task.status }}
+									</div>
+								{% else %}
+									{% if task.status == 'Completed' %}
+										<div
+											id="completed-status"
+											scope='row'
+											class="badge float-center mt-1 badge-pill"
+										>
+											{{ task.status }}
+										</div>
+									{% endif %}
+								{% endif %}
+							{% endif %}
+								</h4>
+							<div class="edit-delete-buttons">
+								<a type="button" id = "edit-btn" class="edit btn btn-secondary" href="/backlog/edit/{{ task.id }}/{{ filter_tag }}">Edit</a>
+								<a type="button" id = "delete-btn" class="edit btn btn-secondary" href="/backlog/delete/{{ task.id }}/{{ filter_tag }}" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+							</div>
+						</th>
+					</tr>
+					<tr>
+						<td scope="col" style="text-align-last: center"><b>Status:</b></th>
+						<td scope="col" style="text-align-last: center"><b>Priority:</b></th>
+						<td scope='row' colspan=2 style="text-align-last: center"><b>Description:</b></td>
+						<td scope='row' style="text-align-last: center"><b>Story Points:</b></td>
+						<td scope='row' style="text-align-last: center"><b>Team Member:</b></td>
+						<td scope='row' style="text-align-last: center"><b>Sprint:</b></td>
+					</tr>
+					<tr>
+						<td scope='row' style="text-align-last: center">
+							{% if task.status == 'Not Started' %}
+								<div
+									id="todo-status"
+									scope='row'
+									class="badge float-center mt-1 badge-pill"
+								>
+									{{ task.status }}
+								</div>
+							{% else %}
+								{% if task.status == 'In Progress' %}
+									<div
+										id="progress-status"
+										scope='row'
+										class="badge float-center mt-1 badge-pill"
+									>
+										{{ task.status }}
+									</div>
+								{% else %}
+									{% if task.status == 'Completed' %}
+										<div
+											id="completed-status"
+											scope='row'
+											class="badge float-center mt-1 badge-pill"
+										>
+											{{ task.status }}
+										</div>
+									{% endif %}
+								{% endif %}
+							{% endif %}
+						</td>
+						<td scope='row' style='text-align-last: center'>
+						{% if task.priority == 'Low' %}
+							<div
+								id="low-prio"
+								scope='row'
+								class="badge float-center mt-1 badge-pill"
+							>
+								{{ task.priority }}
+							</div>
+						{% else %}
+							{% if task.priority == 'Medium' %}
+								<div
+									id="mid-prio"
+									scope='row'
+									class="badge float-center mt-1 badge-pill"
+								>
+									{{ task.priority }}
+								</div>
+							{% else %}
+								{% if task.priority == 'High' %}
+									<div
+										id="high-prio"
+										scope='row'
+										class="badge float-center mt-1 badge-pill"
+									>
+										{{ task.priority }}
+									</div>
+								{% else %}
+									{% if task.priority == 'Critical' %}
+										<div
+											id="critical-prio"
+											scope='row'
+											class="badge float-center mt-1 badge-pill"
+										>
+											{{ task.priority }}
+										</div>
+									{% endif %}
+								{% endif %}
+							{% endif %}
+						{% endif %}
+						</td>
+
+						<!--td scope='row' style="text-align-last: center">{{ task.priority }}</td-->
+						<td scope='row' colspan=2 style="text-align-last: center">{{ task.description }}</td>
+						<td scope='row' style="text-align-last: center">{{ task.story_points }}</td>
+						<td scope='row' style="text-align-last: center">{{ member }}</td>
+						<td scope='row' style="text-align-last: center">{{ sprint }}</td>
+					</tr>
+				{% endif %}
+			{% endfor %}
+		</table>
+	{% endif %}
+
+	<div class = "col-md-12 text-center">
+		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTaskPopup">
+		ADD TASK
+		</button>
+	</div>
+
+	{% block editTask %}
+
+	{% endblock %}
+{% endblock %}

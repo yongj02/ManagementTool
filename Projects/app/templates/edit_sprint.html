@@ -1,0 +1,96 @@
+{% extends 'sprints.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $(window).on('load', function() {
+            $('#editSprintPopup').modal('show');
+        })
+    </script>
+    <script>
+        $('#editSprintPopup').on('hidden.bs.modal', function (e) {
+            $(window).location = "http://127.0.0.1:5000/sprints/";
+        })
+    </script>
+
+{% endblock %}
+
+{% block editSprint %}
+<!-- Modal -->
+    <div class="modal fade" id="editSprintPopup" tabindex="-1" role="dialog" aria-labelledby="editSprintLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="/sprints/edit/{{ _id }}/{{ filter_tag }}" method="POST">
+                    <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">Edit Sprint</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form">
+                            <form method="POST">
+                            {{ sprintForm.hidden_tag() }}
+
+                            {{ sprintForm.sprintName.label(class="form-label") }}
+                            {{ sprintForm.sprintName(class="form-control") }}
+
+                            {% if sprintForm.sprintName.errors %}
+                                <ul class="errors">
+
+                                {% for error in sprintForm.sprintName.errors %}
+                                    <li style="color: red; text-aligned: left"> {{ error }} </li>
+                                {% endfor %}
+
+                                </ul>
+                            {% endif %}
+
+                            {{ sprintForm.start_date.label(class="form-label") }}
+                            {{ sprintForm.start_date(class="form-control") }}
+
+                            {% if sprintForm.start_date.errors %}
+                                <ul class="errors">
+
+                                {% for error in sprintForm.start_date.errors %}
+                                    <li style="color: red; text-aligned: left"> {{ error }} </li>
+                                {% endfor %}
+
+                                </ul>
+                            {% endif %}
+
+                            {{ sprintForm.end_date.label(class="form-label") }}
+                            {{ sprintForm.end_date(class="form-control") }}
+
+                            {% if sprintForm.end_date.errors %}
+                                <ul class="errors">
+
+                                {% for error in sprintForm.end_date.errors %}
+                                    <li style="color: red; text-aligned: left"> {{ error }} </li>
+                                {% endfor %}
+
+                                </ul>
+                            {% endif %}
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                {{ sprintForm.submit(class="btn btn-primary") }}
+                            </div>
+                        {% if sprintForm.errors %}<script>$('#editSprintPopup').modal('show');</script>{% endif %}
+                        </form>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  <script type="text/javascript">
+    $('#editSprintPopup').on('hide.bs.modal', function() {
+      window.location.href = "{{url_for('sprints.show_sprints', filter_tag=filter_tag)}}";
+    })
+  </script>
+{% endblock %}
+
